@@ -1,6 +1,6 @@
 import logging
 
-from telegram import Update, ForceReply
+from telegram import Update, ForceReply, ReplyKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 from decouple import config
 
@@ -14,7 +14,10 @@ logger = logging.getLogger(__name__)
 
 def start(update: Update, context: CallbackContext) -> None:
     user = update.effective_user
-    update.message.reply_text('Здравствуйте!')
+    custom_keyboard = [['top-left', 'top-right'],
+                       ['bottom-left', 'bottom-right']]
+    reply_markup = ReplyKeyboardMarkup(custom_keyboard)
+    update.message.reply_text('Здравствуйте!', reply_markup=reply_markup)
 
 
 def help_command(update: Update, context: CallbackContext) -> None:
