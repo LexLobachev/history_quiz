@@ -10,7 +10,7 @@ def load_quiz_questions():
                 question = line.lstrip().replace('\n', ' ').split(': ', 1)[1]
                 quiz.setdefault(question_number, []).append(question)
             elif 'Ответ' in line:
-                answer = line.lstrip().replace('\n', ' ')
+                answer = line.lstrip().replace('\n', ' ').replace('.', '').replace('ответ: ', '')
                 quiz.setdefault(question_number, []).append(answer)
                 question_id += 1
     return quiz
