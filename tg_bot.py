@@ -40,6 +40,15 @@ def new_question(update: Update, context: CallbackContext, questions, redis_conn
         redis_connection.set(update.message.from_user.id, answer)
         update.message.reply_text(question)
     else:
+        redis_answer = redis_connection.get(update.message.from_user.id)
+        right_answer = redis_answer.decode("utf-8").lower()
+        user_answer = update.message.text.lower()
+
+        if user_answer == right_answer:
+            update.message.reply_text('Правильно! Поздравляю! Для следующего вопроса нажми «Новый вопрос»')
+        else:
+            update.message.reply_text('Неправильно… Попробуешь ещё раз?')
+
         update.message.reply_text(update.message.text)
 
 
