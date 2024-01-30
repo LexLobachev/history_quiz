@@ -1,3 +1,4 @@
+import logging
 import random
 from decouple import config
 
@@ -10,28 +11,7 @@ from vk_api.utils import get_random_id
 from quiz_parser import load_quiz_questions
 
 
-def start(vk, vk_session, redis_connection, keyboard, questions):
-    longpoll = VkLongPoll(vk_session)
-    for event in longpoll.listen():
-        if event.type == VkEventType.MESSAGE_NEW and event.to_me and event.text == 'start':
-            vk.messages.send(
-                user_id=event.user_id,
-                message='Здравствуйте! Нажмите на кнопку "Новый вопрос", чтобы получить случайный вопрос',
-                random_id=get_random_id(),
-                keyboard=keyboard.get_keyboard(),
-            )
-
-        elif event.type == VkEventType.MESSAGE_NEW and event.to_me and event.text == 'Новый вопрос':
-            handle_new_question_request(vk, event, redis_connection, keyboard, questions)
-
-        elif event.type == VkEventType.MESSAGE_NEW and event.to_me and event.text == 'Сдаться':
-            handle_give_up(vk, event, redis_connection, keyboard)
-
-        elif event.type == VkEventType.MESSAGE_NEW and event.to_me and event.text == 'Мой счет':
-            handle_give_score(vk, event, keyboard)
-
-        elif event.type == VkEventType.MESSAGE_NEW and event.to_me and event.text:
-            handle_solution_attempt(vk, event, redis_connection, keyboard)
+logger = logging.getLogger("vk_logger")
 
 
 def handle_new_question_request(vk, event, redis_connection, keyboard, questions):
@@ -97,15 +77,42 @@ def main():
 
     questions = load_quiz_questions()
 
-    vk = vk_session.get_api()
-
     keyboard = VkKeyboard(one_time=True)
     keyboard.add_button('Новый вопрос', color=VkKeyboardColor.PRIMARY)
     keyboard.add_button('Сдаться', color=VkKeyboardColor.NEGATIVE)
     keyboard.add_line()
     keyboard.add_button('Мой счет', color=VkKeyboardColor.PRIMARY)
 
-    start(vk, vk_session, redis_connection, keyboard, questions)
+    logger.setLevel(logging.INFO)
+    logger.info("ВК бот Викторины запущен")
+
+    vk = vk_session.get_api()
+    longpoll = VkLongPoll(vk_session)
+
+    while True:
+        try:
+            for event in longpoll.listen():
+                if event.type == VkEventType.MESSAGE_NEW and event.to_me and event.text == 'start':
+                    vk.messages.send(
+                        user_id=event.user_id,
+                        message='Здравствуйте! Нажмите на кнопку "Новый вопрос", чтобы получить случайный вопрос',
+                        random_id=get_random_id(),
+                        keyboard=keyboard.get_keyboard(),
+                    )
+
+                elif event.type == VkEventType.MESSAGE_NEW and event.to_me and event.text == 'Новый вопрос':
+                    handle_new_question_request(vk, event, redis_connection, keyboard, questions)
+
+                elif event.type == VkEventType.MESSAGE_NEW and event.to_me and event.text == 'Сдаться':
+                    handle_give_up(vk, event, redis_connection, keyboard)
+
+                elif event.type == VkEventType.MESSAGE_NEW and event.to_me and event.text == 'Мой счет':
+                    handle_give_score(vk, event, keyboard)
+
+                elif event.type == VkEventType.MESSAGE_NEW and event.to_me and event.text:
+                    handle_solution_attempt(vk, event, redis_connection, keyboard)
+        except Exception as message:
+            logger.debug(message)
 
 
 if __name__ == '__main__':

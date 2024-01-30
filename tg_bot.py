@@ -10,10 +10,6 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Callb
 from quiz_parser import load_quiz_questions
 
 
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
-)
-
 logger = logging.getLogger(__name__)
 
 NEW_QUESTION, ANSWER = range(2)
@@ -86,15 +82,18 @@ def cancel(update: Update, context: CallbackContext):
 
 
 def main():
-    updater = Updater(config("TG_BOT_TOKEN"))
+    tg_bot_token = config("TG_BOT_TOKEN")
     redis_host = config("REDIS_HOST")
     redis_port = config("REDIS_PORT")
     redis_password = config("REDIS_PASSWORD")
 
     redis_connection = redis.Redis(host=redis_host, port=redis_port, password=redis_password, db=0)
-
     questions = load_quiz_questions()
 
+    logger.setLevel(logging.INFO)
+    logger.info("ТГ бот Викторины запущен")
+
+    updater = Updater(tg_bot_token)
     dispatcher = updater.dispatcher
 
     conv_handler = ConversationHandler(
@@ -123,12 +122,14 @@ def main():
         fallbacks=[CommandHandler('cancel', cancel)]
     )
 
+    while True:
+        try:
+            dispatcher.add_handler(conv_handler)
+            updater.start_polling()
+            updater.idle()
 
-    dispatcher.add_handler(conv_handler)
-
-    updater.start_polling()
-
-    updater.idle()
+        except Exception:
+            logger.exception(Exception)
 
 
 if __name__ == '__main__':
