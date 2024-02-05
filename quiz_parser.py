@@ -5,16 +5,16 @@ def load_quiz_questions():
     quiz = {}
     with open(config("PATH_FOR_PARSE"), "r", encoding="KOI8-R") as file:
         lines = file.read().split('\n\n')
-        question_id = 1
-        for line in lines:
-            question_number = f'Вопрос {question_id}:'
-            if 'Вопрос' in line:
-                question = line.lstrip().replace('\n', ' ').split(': ', 1)[1]
-                quiz.setdefault(question_number, []).append(question)
-            elif 'Ответ' in line:
-                answer = line.lstrip().replace('\n', ' ').replace('.', '').replace('Ответ: ', '')
-                quiz.setdefault(question_number, []).append(answer)
-                question_id += 1
+    question_id = 1
+    for line in lines:
+        question_number = f'Вопрос {question_id}:'
+        if 'Вопрос' in line:
+            question = line.lstrip().replace('\n', ' ').split(': ', 1)[1]
+            quiz.setdefault(question_number, []).append(question)
+        elif 'Ответ' in line:
+            answer = line.lstrip().replace('\n', ' ').replace('.', '').replace('Ответ: ', '')
+            quiz.setdefault(question_number, []).append(answer)
+            question_id += 1
     return quiz
 
 
