@@ -72,10 +72,11 @@ def main():
     redis_host = config("REDIS_HOST")
     redis_port = config("REDIS_PORT")
     redis_password = config("REDIS_PASSWORD")
+    parser_path = config("PATH_FOR_PARSE")
 
     redis_connection = redis.Redis(host=redis_host, port=redis_port, password=redis_password, db=0)
 
-    questions = load_quiz_questions()
+    questions = load_quiz_questions(parser_path)
 
     keyboard = VkKeyboard(one_time=True)
     keyboard.add_button('Новый вопрос', color=VkKeyboardColor.PRIMARY)

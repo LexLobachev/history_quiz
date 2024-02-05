@@ -1,9 +1,7 @@
-from decouple import config
 
-
-def load_quiz_questions():
+def load_quiz_questions(parser_path):
     quiz = {}
-    with open(config("PATH_FOR_PARSE"), "r", encoding="KOI8-R") as file:
+    with open(parser_path, "r", encoding="KOI8-R") as file:
         lines = file.read().split('\n\n')
     question_id = 1
     for line in lines:
@@ -19,4 +17,4 @@ def load_quiz_questions():
 
 
 if __name__ == '__main__':
-    load_quiz_questions()
+    load_quiz_questions(parser_path="quiz-questions/3f15.txt")
