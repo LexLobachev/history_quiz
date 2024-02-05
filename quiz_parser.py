@@ -3,8 +3,8 @@ from decouple import config
 
 def load_quiz_questions():
     quiz = {}
-    with open(config("PATH_FOR_PARSE"), "r", encoding="KOI8-R") as my_file:
-        lines = my_file.read().split('\n\n')
+    with open(config("PATH_FOR_PARSE"), "r", encoding="KOI8-R") as file:
+        lines = file.read().split('\n\n')
         question_id = 1
         for line in lines:
             question_number = f'Вопрос {question_id}:'
